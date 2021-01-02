@@ -18,6 +18,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.abdalazizabdallah.currecycoverter.model.BackResult;
 import com.abdalazizabdallah.currecycoverter.model.Result;
 import com.abdalazizabdallah.currecycoverter.viewModel.MainViewModel;
 import com.google.android.material.snackbar.Snackbar;
@@ -30,9 +31,11 @@ public class MainActivity extends AppCompatActivity implements Observer<Result> 
     private CountryCodePicker countryCodePickerBelow;
     private ImageButton imageButton;
     private EditText editText;
-    private TextView textView;
+    private TextView textViewResult;
     private MainViewModel mainViewModel;
     private Toolbar toolbar;
+    private TextView textViewSymbolSource;
+    private TextView textViewSymbolTarget;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +51,9 @@ public class MainActivity extends AppCompatActivity implements Observer<Result> 
         countryCodePickerBelow = findViewById(R.id.spinner_flag_below);
         countryCodePickerBelow.setCountryForNameCode("il");
 
-        textView = findViewById(R.id.textView_below);
+        textViewResult = findViewById(R.id.textView_below);
+        textViewSymbolSource = findViewById(R.id.textViewSymbolSource);
+        textViewSymbolTarget = findViewById(R.id.textViewSymbolTarget);
         editText = findViewById(R.id.editText_above);
 
         mainViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(MainViewModel.class);
@@ -57,14 +62,14 @@ public class MainActivity extends AppCompatActivity implements Observer<Result> 
 
         Log.e(TAG, " MainActivity :onCreate: " + countryCodePickerBelow.getSelectedCountryNameCode(), null);
 
-        mainViewModel.requestCurrencyCode(countryCodePickerBelow.getSelectedCountryNameCode(), "USD", editText.getText().toString());
+        mainViewModel.requestCurrencyCode(countryCodePickerBelow.getSelectedCountryNameCode(), countryCodePickerAbove.getSelectedCountryNameCode(), editText.getText().toString());
 
 
         countryCodePickerBelow.setOnCountryChangeListener(new CountryCodePicker.OnCountryChangeListener() {
             @Override
             public void onCountrySelected() {
                 Snackbar.make(findViewById(android.R.id.content), countryCodePickerBelow.getSelectedCountryNameCode(), Snackbar.LENGTH_LONG).show();
-                mainViewModel.requestCurrencyCode(countryCodePickerBelow.getSelectedCountryNameCode(), "USD", editText.getText().toString());
+                mainViewModel.requestCurrencyCode(countryCodePickerBelow.getSelectedCountryNameCode(), countryCodePickerAbove.getSelectedCountryNameCode(), editText.getText().toString());
             }
         });
 
@@ -80,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements Observer<Result> 
                             if (event == null || !event.isShiftPressed()) {
                                 // the user is done typing.
                                 Snackbar.make(findViewById(android.R.id.content), countryCodePickerBelow.getSelectedCountryNameCode(), Snackbar.LENGTH_LONG).show();
-                                mainViewModel.requestCurrencyCode(countryCodePickerBelow.getSelectedCountryNameCode(), "USD", editText.getText().toString());
+                                mainViewModel.requestCurrencyCode(countryCodePickerBelow.getSelectedCountryNameCode(), countryCodePickerAbove.getSelectedCountryNameCode(), editText.getText().toString());
 
                                 return true; // consume.
                             }
@@ -98,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements Observer<Result> 
         countryCodePickerAbove.setCountryForNameCode(countryBelow);
         countryCodePickerBelow.setCountryForNameCode(countryAbove);
     }
-
+//
 
     @Override
     public void onChanged(Result result) {
@@ -108,8 +113,10 @@ public class MainActivity extends AppCompatActivity implements Observer<Result> 
         switch (result.status) {
             case SUCCESS:
                 if (result.data != null) {
-                    String resu = (String) result.data;
-                    textView.setText(resu);
+                    BackResult resu = (BackResult) result.data;
+                    textViewResult.setText(String.valueOf(resu.getResult()));
+                    textViewSymbolSource.setText(String.valueOf(resu.getSymbolSource()));
+                    textViewSymbolTarget.setText(String.valueOf(resu.getSymbolTaget()));
                 } else {
                     Toast.makeText(this, "error", Toast.LENGTH_LONG).show();
                 }

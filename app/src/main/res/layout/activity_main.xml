@@ -7,6 +7,17 @@
     android:background="@drawable/background"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/textViewSymbolTarget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="$"
+        android:textColor="@color/white"
+        android:textSize="24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/spinner_flag_below"
+        app:layout_constraintStart_toEndOf="@+id/spinner_flag_below"
+        app:layout_constraintTop_toTopOf="@+id/spinner_flag_below" />
+
     <com.hbb20.CountryCodePicker
         android:id="@+id/spinner_flag_below"
         android:layout_width="150dp"
@@ -32,7 +43,7 @@
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="@+id/spinner_flag_above"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView"
+        app:layout_constraintStart_toEndOf="@+id/textViewSymbolSource"
         app:layout_constraintTop_toTopOf="@+id/spinner_flag_above"
         app:layout_constraintVertical_bias="0.0" />
 
@@ -40,7 +51,6 @@
         android:id="@+id/textView_below"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="16dp"
         android:padding="10dp"
         android:text="TextView"
@@ -48,7 +58,7 @@
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="@+id/spinner_flag_below"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/spinner_flag_below"
+        app:layout_constraintStart_toEndOf="@+id/textViewSymbolTarget"
         app:layout_constraintTop_toTopOf="@+id/spinner_flag_below"
         tools:text="TextView" />
 
@@ -91,7 +101,7 @@
         app:layout_constraintVertical_bias="0.484" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textViewSymbolSource"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="$"

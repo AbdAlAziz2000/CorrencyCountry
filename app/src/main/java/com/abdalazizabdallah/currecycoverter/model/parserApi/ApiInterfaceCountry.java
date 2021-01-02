@@ -11,7 +11,7 @@ public interface ApiInterfaceCountry {
     String RES_PATH = "rest/v2/alpha";
 
     @GET(RES_PATH)
-    Call<List<Country>> getNameCountry(@Query("codes") String code);
+    Call<List<Country>> getNameCountry(@Query("codes") String codeTarget);
 
 
 }

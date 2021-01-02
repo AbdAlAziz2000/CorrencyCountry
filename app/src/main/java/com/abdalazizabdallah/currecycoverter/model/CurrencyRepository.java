@@ -49,7 +49,7 @@ public class CurrencyRepository {
         return instance;
     }
 
-    public void requestGetCurrency(String textNumber, String currencySource, Currency currencyCounrty) {
+    public void requestGetCurrency(String textNumber, Currency currencySource, Currency currencyTarget) {
         if (TextUtils.isEmpty(textNumber)) {
             //TODO : show messsage error
             Log.e(TAG, " CurrencyRepository : requestGetCurrency : " + textNumber + " TextUtils.isEmpty(textNumber) ", null);
@@ -60,20 +60,20 @@ public class CurrencyRepository {
             Log.e(TAG, " CurrencyRepository : requestGetCurrency : else", null);
 
 
-            Call<ResponseBody> data = networkUtils.getCurrencyApiInterface().getData(Constants.API_KEY, currencySource, currencyCounrty.getCode());
+            Call<ResponseBody> data = networkUtils.getCurrencyApiInterface().getData(Constants.API_KEY, currencySource.getCode(), currencyTarget.getCode());
             data.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
                         try {
                             String stringRespone = response.body().string();
-                            Currancy currancy = ParseData.parseData(stringRespone, currencyCounrty.getCode());
+                            Currancy currancy = ParseData.parseData(stringRespone, currencyTarget.getCode());
                             double result = calculateCurrency(Double.parseDouble(textNumber), currancy.getRates().getTargetCurrency());
 
                             Log.e(TAG, " CurrencyRepository : requestGetCurrency :  else : onResponse : " + result, null);
 
 
-                            dataWrapper.setValue(Result.success(String.valueOf(result)));
+                            dataWrapper.setValue(Result.success(new BackResult(result, currencySource.getSymbol(), currencyTarget.getSymbol())));
                             //textView.setText(String.valueOf(result));
                             // TODO : retrun data to Ui
                         } catch (IOException e) {
@@ -83,9 +83,9 @@ public class CurrencyRepository {
                             e.printStackTrace();
                         }
                     } else {
-                        Log.e(TAG, " CurrencyRepository : requestGetCurrency : else : onResponse :  not Successful " + "Symbols  '" + currencyCounrty.getCode() + "'  are invalid ", null);
+                        Log.e(TAG, " CurrencyRepository : requestGetCurrency : else : onResponse :  not Successful " + "Symbols  '" + currencyTarget.getCode() + "'  are invalid ", null);
 
-                        dataWrapper.setValue(Result.error("Symbols  '" + currencyCounrty.getCode() + "'  are invalid "));
+                        dataWrapper.setValue(Result.error("Symbols  '" + currencyTarget.getCode() + "'  are invalid "));
                         // TODO : show message Error
                     }
                 }
@@ -102,15 +102,26 @@ public class CurrencyRepository {
     }
 
     public void getCurrencyCountryCode(String codeNameCountry, String codeSource, String textNumber) {
-        Call<List<Country>> nameCountry = networkUtilsCountry.getCountryApiInterface().getNameCountry(codeNameCountry);
+
+        String quray = codeNameCountry + ";" + codeSource;
+        Log.e(TAG, " CurrencyRepository : getCurrencyCountryCode onResponse " + quray, null);
+        Call<List<Country>> nameCountry = networkUtilsCountry.getCountryApiInterface().getNameCountry(quray);
         nameCountry.enqueue(new Callback<List<Country>>() {
             @Override
             public void onResponse(Call<List<Country>> call, Response<List<Country>> response) {
                 if (response.body() != null && response.body().get(0) != null) {
-                    Currency currency = response.body().get(0).getCurrencies().get(0);
-                    requestGetCurrency(textNumber, codeSource, currency);
+                    Currency currencyTarget = response.body().get(0).getCurrencies().get(0);
+                    Currency currencySourse = response.body().get(1).getCurrencies().get(0);
+                    if (currencySourse.getCode() == null) {
+                        currencySourse.setCode("USD");
+                    }
+                    if (currencyTarget.getCode() == null) {
+                        currencyTarget.setCode("USD");
+                    }
 
-                    Log.e(TAG, " getCurrencyCountryCode :getCurrencyCountryCode  onResponse :" + currency.getCode(), null);
+                    requestGetCurrency(textNumber, currencySourse, currencyTarget);
+
+                    Log.e(TAG, " getCurrencyCountryCode :getCurrencyCountryCode  onResponse : Base : " + currencySourse.getCode() + " and Target :" + currencyTarget.getCode(), null);
 
                 } else {
                     dataWrapper.setValue(Result.error("error"));
